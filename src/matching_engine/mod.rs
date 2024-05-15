@@ -34,13 +34,21 @@ impl MatchingEngine {
         self.next_order_id += 1;
 
         match order.order_type {
-            OrderType::Buy => self.buy_orders.push(order),
-            OrderType::Sell => self.sell_orders.push(order),
+            OrderType::Buy => {
+                self.buy_orders.push(order);
+            },
+            OrderType::Sell => {
+                self.sell_orders.push(order);
+            },
         }
     }
 
     // Match buy and sell orders and execute trades
     pub fn match_orders(&mut self) {
+        if (self.buy_orders.is_empty() || self.sell_orders.is_empty()) {
+            println!("no opposit order exists!");
+            return;
+        }
         while let (Some(mut buy_order), Some(mut sell_order)) = (self.buy_orders.pop(), self.sell_orders.pop()) {
             if buy_order.price >= sell_order.price {
                 let matched_quantity = buy_order.quantity.min(sell_order.quantity);
@@ -60,5 +68,20 @@ impl MatchingEngine {
                 break; // No more matching orders
             }
         }
+    }
+
+    // Print the order book
+    pub fn print_order_book(&self) {
+        println!("{}", "-".to_string().repeat(100));
+        println!("Buy Orders: {:?}", self.buy_orders);
+        // for order in &self.buy_orders.clone().into_sorted_vec() {
+        //     println!("Price: {:.2}, Size: {:?}", order.price, order.quantity);
+        // }
+        println!("{}", "-".to_string().repeat(100));
+        println!("Sell Orders: {:?}", self.sell_orders);
+        // for order in &self.sell_orders.clone().into_sorted_vec() {
+        //     println!("Price: {:.2}, Size: {:?}", order.price, order.quantity);
+        // }
+        println!("{}", "-".to_string().repeat(100));
     }
 }
